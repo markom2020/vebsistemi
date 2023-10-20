@@ -1,0 +1,572 @@
+<!DOCTYPE HTML>
+<html lang="sr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Креирање локације</title>
+    <link rel="stylesheet" href="../style.css">
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script type="text/javascript" src="../script.js"></script>
+    <style type="text/css">
+        .forma-lokacije {
+            position: relative;
+            top: 125px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 20px;
+            max-width: 500px;
+            text-align: center;
+            border: 1px solid var(--boja-ivice);
+            border-radius: 20px;
+            background-color: var(--boja-formulara);
+        }
+        
+        .polje-forme {
+            margin-bottom: 20px;
+            width: 100%;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <div class="forma-lokacije">
+        <h1 style="padding-bottom: 20px;">Креирање локације</h1>
+        <form id="formaLokacije">
+            <div class="polje-forme">
+                <label for="name">Назив</label>
+                <input 
+                    type="text"
+                    class="unos-forme"
+                    id="name" 
+                    name="name" 
+                    placeholder="Овде унети назив локације" 
+                    required
+                >
+                <p id="tekstGreskeName"></p>
+            </div>
+            <div class="polje-forme">
+                <label for="address">Адреса</label>
+                <input 
+                    type="text"
+                    class="unos-forme"
+                    id="address" 
+                    name="address" 
+                    placeholder="Овде унети адресу" 
+                    required
+                >
+                <p id="tekstGreskeAddress"></p>
+            </div>
+            <div class="polje-forme">
+                <label for="city">Град</label>
+                <input 
+                    type="text"
+                    class="unos-forme"
+                    id="city" 
+                    name="city" 
+                    placeholder="Овде унети град" 
+                    required
+                >
+                <p id="tekstGreskeCity"></p>
+            </div>
+            <div class="polje-forme">
+                <label for="description">Опис</label>
+                <textarea
+                    class="unos-forme"
+                    id="description"
+                    name="description"
+                    placeholder="Овде унети опис локације"
+                ></textarea>
+                <p id="tekstGreskeDescription"></p>
+            </div>
+            <div class="polje-forme">
+                <label for="workingHours">Радно време</label>
+                <table>
+                    <tr>
+                        <th>Дан</th>
+                        <th>Радно време од</th>
+                        <th>Радно време до</th>
+                    </tr>
+                    <tr>
+                        <td>Понедељак</td>
+                        <td>
+                            <div class="vreme">
+                                <input
+                                    type="number"
+                                    class="unos-forme"
+                                    id="odSati"
+                                    name="odSati"
+                                    placeholder="сат"
+                                    required
+                                >
+                                <input
+                                    type="number"
+                                    class="unos-forme"
+                                    id="odMinuti"
+                                    name="odMinuti"
+                                    placeholder="минут"
+                                    required
+                                >
+                            </div>
+                        </td>
+                        <td>
+                            <div class="vreme">
+                                <input
+                                    type="number"
+                                    class="unos-forme"
+                                    id="doSati"
+                                    name="doSati"
+                                    placeholder="сат"
+                                    required
+                                    disabled
+                                >
+                                <input
+                                    type="number"
+                                    class="unos-forme"
+                                    id="doMinuti"
+                                    name="doMinuti"
+                                    placeholder="минут"
+                                    required
+                                    disabled
+                                >
+                            </div>
+                        </td>
+                        <input
+                            type="hidden"
+                            name="dan"
+                            value="1"
+                        >
+                    </tr>
+                    <tr>
+                        <td>Уторак</td>
+                        <td>
+                            <div class="vreme">
+                                <input
+                                    type="number"
+                                    class="unos-forme"
+                                    id="odSati"
+                                    name="odSati"
+                                    placeholder="сат"
+                                    required
+                                >
+                                <input
+                                    type="number"
+                                    class="unos-forme"
+                                    id="odMinuti"
+                                    name="odMinuti"
+                                    placeholder="минут"
+                                    required
+                                >
+                            </div>
+                        </td>
+                        <td>
+                            <div class="vreme">
+                                <input
+                                    type="number"
+                                    class="unos-forme"
+                                    id="doSati"
+                                    name="doSati"
+                                    placeholder="сат"
+                                    required
+                                    disabled
+                                >
+                                <input
+                                    type="number"
+                                    class="unos-forme"
+                                    id="doMinuti"
+                                    name="doMinuti"
+                                    placeholder="минут"
+                                    required
+                                    disabled
+                                >
+                            </div>
+                        </td>
+                        <input
+                            type="hidden"
+                            name="dan"
+                            value="2"
+                        >
+                    </tr>
+                    <tr>
+                        <td>Среда</td>
+                        <td>
+                            <div class="vreme">
+                                <input
+                                    type="number"
+                                    class="unos-forme"
+                                    id="odSati"
+                                    name="odSati"
+                                    placeholder="сат"
+                                    required
+                                >
+                                <input
+                                    type="number"
+                                    class="unos-forme"
+                                    id="odMinuti"
+                                    name="odMinuti"
+                                    placeholder="минут"
+                                    required
+                                >
+                            </div>
+                        </td>
+                        <td>
+                            <div class="vreme">
+                                <input
+                                    type="number"
+                                    class="unos-forme"
+                                    id="doSati"
+                                    name="doSati"
+                                    placeholder="сат"
+                                    required
+                                    disabled
+                                >
+                                <input
+                                    type="number"
+                                    class="unos-forme"
+                                    id="doMinuti"
+                                    name="doMinuti"
+                                    placeholder="минут"
+                                    required
+                                    disabled
+                                >
+                            </div>
+                        </td>
+                        <input
+                            type="hidden"
+                            name="dan"
+                            value="3"
+                        >
+                    </tr>
+                    <tr>
+                        <td>Четвртак</td>
+                        <td>
+                            <div class="vreme">
+                                <input
+                                    type="number"
+                                    class="unos-forme"
+                                    id="odSati"
+                                    name="odSati"
+                                    placeholder="сат"
+                                    required
+                                >
+                                <input
+                                    type="number"
+                                    class="unos-forme"
+                                    id="odMinuti"
+                                    name="odMinuti"
+                                    placeholder="минут"
+                                    required
+                                >
+                            </div>
+                        </td>
+                        <td>
+                            <div class="vreme">
+                                <input
+                                    type="number"
+                                    class="unos-forme"
+                                    id="doSati"
+                                    name="doSati"
+                                    placeholder="сат"
+                                    required
+                                    disabled
+                                >
+                                <input
+                                    type="number"
+                                    class="unos-forme"
+                                    id="doMinuti"
+                                    name="doMinuti"
+                                    placeholder="минут"
+                                    required
+                                    disabled
+                                >
+                            </div>
+                        </td>
+                        <input
+                            type="hidden"
+                            name="dan"
+                            value="4"
+                        >
+                    </tr>
+                    <tr>
+                        <td>Петак</td>
+                        <td>
+                            <div class="vreme">
+                                <input
+                                    type="number"
+                                    class="unos-forme"
+                                    id="odSati"
+                                    name="odSati"
+                                    placeholder="сат"
+                                    required
+                                >
+                                <input
+                                    type="number"
+                                    class="unos-forme"
+                                    id="odMinuti"
+                                    name="odMinuti"
+                                    placeholder="минут"
+                                    required
+                                >
+                            </div>
+                        </td>
+                        <td>
+                            <div class="vreme">
+                                <input
+                                    type="number"
+                                    class="unos-forme"
+                                    id="doSati"
+                                    name="doSati"
+                                    placeholder="сат"
+                                    required
+                                    disabled
+                                >
+                                <input
+                                    type="number"
+                                    class="unos-forme"
+                                    id="doMinuti"
+                                    name="doMinuti"
+                                    placeholder="минут"
+                                    required
+                                    disabled
+                                >
+                            </div>
+                        </td>
+                        <input
+                            type="hidden"
+                            name="dan"
+                            value="5"
+                        >
+                    </tr>
+                    <tr>
+                        <td>Субота</td>
+                        <td>
+                            <div class="vreme">
+                                <input
+                                    type="number"
+                                    class="unos-forme"
+                                    id="odSati"
+                                    name="odSati"
+                                    placeholder="сат"
+                                    required
+                                >
+                                <input
+                                    type="number"
+                                    class="unos-forme"
+                                    id="odMinuti"
+                                    name="odMinuti"
+                                    placeholder="минут"
+                                    required
+                                >
+                            </div>
+                        </td>
+                        <td>
+                            <div class="vreme">
+                                <input
+                                    type="number"
+                                    class="unos-forme"
+                                    id="doSati"
+                                    name="doSati"
+                                    placeholder="сат"
+                                    required
+                                    disabled
+                                >
+                                <input
+                                    type="number"
+                                    class="unos-forme"
+                                    id="doMinuti"
+                                    name="doMinuti"
+                                    placeholder="минут"
+                                    required
+                                    disabled
+                                >
+                            </div>
+                        </td>
+                        <input
+                            type="hidden"
+                            name="dan"
+                            value="6"
+                        >
+                    </tr>
+                    <tr>
+                        <td>Недеља</td>
+                        <td>
+                            <div class="vreme">
+                                <input
+                                    type="number"
+                                    class="unos-forme"
+                                    id="odSati"
+                                    name="odSati"
+                                    placeholder="сат"
+                                    required
+                                >
+                                <input
+                                    type="number"
+                                    class="unos-forme"
+                                    id="odMinuti"
+                                    name="odMinuti"
+                                    placeholder="минут"
+                                    required
+                                >
+                            </div>
+                        </td>
+                        <td>
+                            <div class="vreme">
+                                <input
+                                    type="number"
+                                    class="unos-forme"
+                                    id="doSati"
+                                    name="doSati"
+                                    placeholder="сат"
+                                    required
+                                    disabled
+                                >
+                                <input
+                                    type="number"
+                                    class="unos-forme"
+                                    id="doMinuti"
+                                    name="doMinuti"
+                                    placeholder="минут"
+                                    required
+                                    disabled
+                                >
+                            </div>
+                        </td>
+                        <input
+                            type="hidden"
+                            name="dan"
+                            value="7"
+                        >
+                    </tr>
+                </table>
+            </div>
+            <button 
+                type="submit" 
+                class="dugme-forme" 
+                id="submitBtn"
+                style="margin-bottom: 10px;"
+            >
+                Сними
+            </button>
+            <button 
+                type="submit" 
+                class="dugme-forme" 
+                style="background-color: var(--boja-teksta3);"
+                onclick="window.location.href = 'lokacije.html'"
+            >
+                Назад
+            </button>
+            <p id="tekstGreske" style="color: var(--boja-opasno);"></p>
+            <p id="tekstUspeha" style="color: var(--boja-dobro);"></p>
+        </form>
+    </div>
+
+    <script type="text/javascript">
+        $(document).ready(function() {
+            const token = ucitajToken();
+            
+            // ukoliko token ne postoji ili ulogovani korisnik nije administrator,
+            // preusmerava se na index.html koji ce dalje preusmeravati u zavisnosti od vrednosti tokena 
+            if (!token || token.type !== uloge[1]) {
+                window.location.href = pocetniURL + "index.html";
+                return;
+            }
+
+            ucitajNavbar();
+
+            function proveriRadnoVremeOd() {
+                var red = $(this).closest('tr');
+                
+                var doSati = red.find('input[name="doSati"]');
+                var doMinuti = red.find('input[name="doMinuti"]');
+                
+                // proveranje da li su "odMinuti" i "odSati" u istom redu popunjeni
+                if (red.find('input[name="odMinuti"]').val() !== '' && red.find('input[name="odSati"]').val() !== '') {
+                    // ako jesu, omogucavaju se "doMinuti" i "doSati" unosi u istom redu
+                    doSati.prop('disabled', false);
+                    doMinuti.prop('disabled', false);
+                } else {
+                    // ako nisu, onemogucavaju se "doMinuti" i "doSati" unosi u istom redu
+                    doSati.prop('disabled', true);
+                    doMinuti.prop('disabled', true);
+                }
+            }
+
+            $('input[name="odMinuti"]').on('input', proveriRadnoVremeOd);
+            $('input[name="odSati"]').on('input', proveriRadnoVremeOd);
+
+            document.getElementById("formaLokacije").addEventListener("submit", function(event){
+                event.preventDefault(); // sprecava slanje forme
+
+                const radnoVreme = prikupiRadnoVreme();
+
+                $("#submitBtn").css("background-color", "var(--boja-ivice)").text("Учитавање...");
+                
+                // slanje AJAX request-a za kreiranje lokacije zajedno sa svim neophodnim podacima
+                $.ajax({
+                    type: "POST",
+                    url: "https://vsis.mef.edu.rs/projekat/ulaznice/public_html/api/lokacija",
+                    data: {
+                        name: $("#name").val(),
+                        address: $("#address").val(),
+                        city: $("#city").val(),
+                        description: $("#description").val(),
+                        workingHours: JSON.stringify(radnoVreme),
+                        apitoken: $("#apitoken").val(),
+                    },
+                    headers: {
+                        Authorization: `Bearer ${token.token}`,
+                        Accept: "application/json",
+                    },
+                    success: function(odgovor) {
+                        if (odgovor.error) {
+                            // kreiranje lokacije neuspesno, greska se prikazuje ispod dugmeta za snimanje
+                            $("#formaLokacije p[id='tekstGreske']:last").text(odgovor.error).show();
+                            $("#submitBtn").css("background-color", "var(--boja-dobro)").text("Сними");
+                        } else {
+                            // kreiranje lokacije uspesno, korisnik se preusmerava na stranicu sa listom lokacija
+                            window.location.href = "lokacije.html";
+                        }
+                    },
+                    error: function(xhr, textStatus, error) {
+                        // prikazivanje drugih vrsta gresaka ispod dugmeta za sniamnje, ukoliko do njih dodje
+                        $("#formaLokacije p[id='tekstGreske']:last").text(xhr.odgovorJSON.error).show();
+                        $("#submitBtn").css("background-color", "var(--boja-dobro)").text("Сними");
+                    }
+                });
+            });
+
+            // funkcija koja sakuplja sve vrednosti minuta od i sata do iz forme
+            function prikupiRadnoVreme() {
+                const formData = [];
+
+                // pregledava se svaki red kroz petlju
+                $("tr").each(function() {
+                    const red = $(this);
+
+                    // izvlacenje podataka iz trenutnog reda
+                    const dan = parseInt(red.find('input[name="dan"]').val());
+                    const odSati = parseInt(red.find('input[name="odSati"]').val()) * 60;
+                    const odMinuti = parseInt(red.find('input[name="odMinuti"]').val());
+                    const doSati = parseInt(red.find('input[name="doSati"]').val()) * 60;
+                    const doMinuti = parseInt(red.find('input[name="doMinuti"]').val());
+
+                    // proveravanje da li sva polja za unos imaju vrednosti (redovi koji nemaju kompletne podatke se preskacu)
+                    if (dan && !isNaN(odSati) && !isNaN(odMinuti) && !isNaN(doSati) && !isNaN(doMinuti)) {
+                        // pretvaranje sata u minute
+                        const vreme_od = odSati + odMinuti;
+                        const vreme_do = doSati + doMinuti;
+
+                        // dodavanje kompletnog objekta u formData niz
+                        formData.push({
+                            dan: dan,
+                            od: vreme_od,
+                            do: vreme_do
+                        });
+                    }
+                });
+
+                return formData;
+            }
+        });
+    </script>
+</body>
+</html>

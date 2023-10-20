@@ -1,0 +1,151 @@
+<!DOCTYPE HTML>
+<html lang="sr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Корисници</title>
+    <link rel="stylesheet" href="../style.css">
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script type="text/javascript" src="../script.js"></script>
+    <style type="text/css">
+        .dugme-forme.dodaj {
+            position: absolute;
+            top: -50px;
+            right: 5%;
+            width: auto;
+            font-size: 12px;
+        }
+        
+        .dugme-forme.izmeni,
+        .dugme-forme.obrisi {
+            margin: 5px 0;
+            padding: 10px 0;
+            font-size: 10px;
+        }
+
+        .dugme-forme.izmeni {
+            background-color: var(--boja-onako);
+        }
+        .dugme-forme.obrisi {
+            background-color: var(--boja-opasno);
+        }
+    </style>
+</head>
+<body>
+    <div style="position: relative;">
+        <button 
+            class="dugme-forme dodaj" 
+            style="display: none;"
+            onclick="window.location.href = 'kreiranje_korisnika.html'"
+        >
+            Креирај корисника &#43;
+        </button>
+        <h3 id="tekstUcitavanja">Учитавање...</h3>
+        <table id="tabela" style="display: none;">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Име и презиме</th>
+                    <th>Имејл</th>
+                    <th>Телефон</th>
+                    <th>Локација</th>
+                    <th>Улога</th>
+                    <th>Број догађаја</th>
+                    <th>Број резервисаних улазница</th>
+                    <th>Број купљених улазница</th>
+                    <th>Број отказаних улазница</th>
+                    <th>Акција</th>
+                </tr>
+            </thead>
+            <tbody id="teloTabele">
+                <!-- Podaci se dinamicno ubacuju ovde -->
+            </tbody>
+        </table>
+    </div>
+    
+    <script type="text/javascript">
+        function izbrisiKorisnika(id, imePrezime, token, indeks_reda) {
+            $.ajax({
+                url: `https://vsis.mef.edu.rs/projekat/ulaznice/public_html/api/korisnik/${id}?apitoken=${$("#apitoken").val()}`,
+                method: "DELETE",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    Accept: "application/json",
+                },
+                success: function(odgovor) {
+                    ucitajModal("Брисање корисника успешно", `Успешно сте обрисали корисника <strong>${imePrezime}<strong/>.`);
+                    $("#teloTabele tr").eq(indeks_reda).hide();
+                },
+                error: function(xhr, textStatus, error) {
+                    ucitajModal("Брисање корисника неуспешно", `Брисање корисника <strong>${imePrezime}<strong/> није успело.`);
+                },
+            });
+        }
+
+        $(document).ready(function() {
+            const token = ucitajToken();
+            
+            // ukoliko token ne postoji ili ulogovani korisnik nije administrator,
+            // preusmerava se na index.html koji ce dalje preusmeravati u zavisnosti od vrednosti tokena 
+            if (!token || token.type !== uloge[1]) {
+                window.location.href = pocetniURL + "index.html";
+                return;
+            }
+
+            ucitajNavbar();
+
+            function popuniTabelu(korisnici) {
+                const teloTabele = $("#teloTabele");
+                teloTabele.empty();
+
+                korisnici.forEach((korisnik, indeks) => {
+                    teloTabele.append(`
+                        <tr>
+                            <td>${korisnik.id}</td>
+                            <td>${korisnik.imePrezime}</td>
+                            <td>${korisnik.email}</td>
+                            <td>${korisnik.telefon}</td>
+                            <td>${korisnik.lokacija ? `<a href="izmena_lokacije.html?id=${korisnik.lokacija.id}">${korisnik.lokacija.naziv}</a>` : '/'}</td>
+                            <td id="otvaracModala" onclick="ucitajModal('${korisnik.uloga.naziv}', '${korisnik.uloga.opis}')">${korisnik.uloga ? korisnik.uloga.naziv : '/'}</td>
+                            <td>${korisnik.uloga.naziv === uloge[2] ? korisnik.brojDogadjaja || '0' : '/'}</td>
+                            ${korisnik.uloga.naziv === uloge[3] || korisnik.uloga.naziv === uloge[4] ? (`
+                                <td>${korisnik.brojRezervisanihUlaznica || '0'}</td>
+                                <td>${korisnik.brojKupljenihUlaznica || '0'}</td>
+                                <td>${korisnik.brojOtkazanihUlaznica || '0'}</td>
+                            `) : (`
+                                <td>/</td>
+                                <td>/</td>
+                                <td>/</td>
+                            `)}
+                            <td>
+                                <button class="dugme-forme izmeni" onclick="window.location.href = 'izmena_korisnika.html?id=${korisnik.id}'">Измени</button>
+                                <button class="dugme-forme obrisi" onclick="izbrisiKorisnika('${korisnik.id}', '${korisnik.imePrezime}', '${token.token}', '${indeks}')">Обриши</button>
+                            </td>
+                        </tr>
+                    `);
+                });
+            }
+                        
+            $.ajax({
+                type: "GET",
+                url: `https://vsis.mef.edu.rs/projekat/ulaznice/public_html/api/korisnik?apitoken=${$("#apitoken").val()}`,
+                headers: {
+                    "Authorization": `Bearer ${token.token}`
+                },
+                success: function(korisnici) {
+                    // zahtev uspesan, poziva se funkcija koja popunjava tabelu sa korisnicima
+                    $("#tekstUcitavanja").hide();
+                    $("#tabela").show();
+                    $(".dugme-forme.dodaj").show();
+
+                    popuniTabelu(korisnici);
+                },
+                error: function(xhr, textStatus, error) {
+                    // zahtev neuspesan
+                    console.error(xhr);
+                }
+            });
+        });
+    </script>
+</body>
+</html>

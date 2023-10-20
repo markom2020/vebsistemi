@@ -1,0 +1,226 @@
+<!DOCTYPE HTML>
+<html lang="sr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Регистрација</title>
+    <link rel="stylesheet" href="style.css">
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script type="text/javascript" src="script.js"></script>
+    <style type="text/css">
+        .forma-registracije {
+            position: relative;
+            top: 125px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 20px;
+            max-width: 500px;
+            text-align: center;
+            border: 1px solid var(--boja-ivice);
+            border-radius: 20px;
+            background-color: var(--boja-formulara);
+        }
+        
+        .polje-forme {
+            margin-bottom: 20px;
+            width: 100%;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <div class="forma-registracije">
+        <h1 style="padding-bottom: 20px;">Регистрација</h1>
+        <form id="formaRegistracije">
+            <div class="polje-forme">
+                <label for="name">Име и презиме</label>
+                <input 
+                    type="text"
+                    class="unos-forme"
+                    id="name" 
+                    name="name" 
+                    placeholder="Овде унети име и презиме" 
+                >
+                <p id="tekstGreske"></p>
+            </div>
+            <div class="polje-forme">
+                <label for="email">Имејл</label>
+                <input 
+                    type="email"
+                    class="unos-forme"
+                    id="email" 
+                    name="email" 
+                    placeholder="Овде унети имејл" 
+                >
+                <p id="tekstGreske"></p>
+            </div>
+            <div class="polje-forme">
+                <label for="phone">Телефон</label>
+                <input 
+                    type="tel"
+                    class="unos-forme"
+                    id="phone" 
+                    name="phone" 
+                    placeholder="Овде унети телефон" 
+                >
+                <p id="tekstGreske"></p>
+            </div>
+            <div class="polje-forme">
+                <label for="password">Лозинка</label>
+                <input 
+                    type="password"
+                    class="unos-forme"
+                    id="password" 
+                    name="password" 
+                    placeholder="Овде унети лозинку" 
+                >
+                <p id="tekstGreske"></p>
+            </div>
+            <div class="polje-forme">
+                <label for="password2">Поновљена лозинка</label>
+                <input 
+                    type="password"
+                    class="unos-forme"
+                    id="password2" 
+                    name="password2" 
+                    placeholder="Овде унети поновљену лозинку" 
+                >
+                <p id="tekstGreske"></p>
+            </div>
+            <button 
+                type="submit" 
+                class="dugme-forme" 
+                id="submitBtn"
+            >
+                Региструј се
+            </button>
+            <p id="tekstGreske" style="color: #ff0000;"></p>
+        </form>
+    </div>
+
+    <script type="text/javascript">        
+        $(document).ready(function() {
+            ucitajNavbar();
+            $("#name").focus();
+
+            function prikaziGresku(polje, tekst) {
+                polje.addClass("greska");
+                polje.siblings("#tekstGreske").text(tekst);
+            }
+
+            function ukloniGresku(polje) {
+                polje.removeClass("greska");
+                polje.siblings("#tekstGreske").text("");
+            }
+
+            // funkcija koja proverava vrednosti polja za unos i potom prikazuje/uklanja greske
+            function proveriPolje(polje, regex, tekst) {
+                const vrednost = polje.val().trim();
+
+                // polje za phone nije obavezno pa se zato greska uklanja ukoliko je polje prazno
+                if (polje.attr("id") === "phone" && vrednost.length === 0) {
+                    ukloniGresku(polje);
+                    return; // sprecava dalje izvrsavanje funkcije
+                }
+
+                if (!vrednost.match(regex)) { // prikazi gresku ukoliko vrednost polja ne odgovara poslatom regularnom izrazu
+                    prikaziGresku(polje, tekst);
+                } else { // u suprotnom ukloni gresku
+                    ukloniGresku(polje);
+                }
+            }
+
+            // provera vrednosti polja za unos imena i prezimena prilikom svakog njegovog napustanja
+            $("#name").blur(function() {
+                proveriPolje($(this), /^[A-ZА-ЯЁa-zа-яё]+\s[A-ZА-ЯЁa-zа-яё]+$/, "Име и презиме није правилно написано");
+            });
+
+            // provera ispunjenosti polja za unos imejla prilikom svakog njegovog napustanja
+            $("#email").blur(function() {
+                if ($("#email").val().trim().length > 0) {
+                    ukloniGresku($("#email"));
+                }
+            });
+
+            // provera vrednosti polja za unos telefona prilikom svakog njegovog napustanja
+            $("#phone").blur(function() {
+                proveriPolje($(this), /^\+[1-9]\d{1,14}$/, "Телефон није исправан");
+            });
+
+            // provera vrednosti polja za unos lozinke prilikom svakog njegovog napustanja
+            $("#password").blur(function() {
+                proveriPolje($(this), /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z\d]).{6,}$/, "Лозинка није довољно јака");
+            });
+
+            // provera vrednosti polja za unos ponovljene lozinke prilikom svakog njegovog napustanja
+            $("#password2").blur(function() {
+                proveriPolje($(this), new RegExp(`^${$("#password").val()}$`, "i"), "Лозинке се не поклапају");
+            });
+
+            document.getElementById("formaRegistracije").addEventListener("submit", function(event){
+                event.preventDefault(); // sprecava slanje forme
+
+                
+                const polja = [
+                    { input: $("#name"), greska: "Нисте унели име и презиме" },
+                    { input: $("#email"), greska: "Нисте унели имејл" },
+                    { input: $("#password"), greska: "Нисте унели лозинку" },
+                    { input: $("#password2"), greska: "Нисте унели поновљену лозинку" },
+                ];
+
+                for (const polje of polja) {
+                    ukloniGresku(polje.input); // uklanjanje prethodnih gresaka
+
+                    if (polje.input.val().trim().length === 0) {
+                        prikaziGresku(polje.input, polje.greska);
+                        return; // sprecavanje daljeg izvrsavanja ukoliko je neko polje prazno
+                    }
+                }
+
+                $("#submitBtn").css("background-color", "var(--boja-ivice)").text("Учитавање...");
+
+                // slanje AJAX request-a zajedno sa svim neophodnim podacima za registraciju
+                $.ajax({
+                    type: "POST",
+                    url: "https://vsis.mef.edu.rs/projekat/ulaznice/public_html/api/register",
+                    data: {
+                        name: $("#name").val(),
+                        email: $("#email").val(),
+                        phone: $("#phone").val(),
+                        password: $("#password").val(),
+                        apitoken: $("#apitoken").val(),
+                    },
+                    headers: {
+                        Accept: "application/json",
+                    },
+                    success: function(response) {
+                        if (response.error) {
+                            // registracija neuspesna, greska se prikazuje ispod dugmeta za registraciju
+                            const tekstGreske = $("#formaRegistracije p[id='tekstGreske']:last");
+                            tekstGreske.text(response.error);
+
+                            if (response.error.includes("мејл")) {
+                                $("#email").val("");
+                            } else if (response.error.includes("телефон")) {
+                                $("#phone").val("");
+                            }
+
+                            $("#submitBtn").css("background-color", "var(--boja-dobro)").text("Региструј се");
+                        } else {
+                            // registracija uspesna, korisnik se preusmerava na stranicu za prijavu
+                            window.location.href = "prijava.html";
+                        }
+                    },
+                    error: function(xhr, textStatus, error) {
+                        // prikazivanje drugih vrsta gresaka ispod dugmeta za registraciju, ukoliko do njih dodje
+                        const tekstGreske = $("#formaRegistracije p[id='tekstGreske']:last");
+                        tekstGreske.text(xhr.responseJSON.error);
+
+                        $("#submitBtn").css("background-color", "var(--boja-dobro)").text("Региструј се");
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

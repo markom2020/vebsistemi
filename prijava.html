@@ -1,0 +1,141 @@
+<!DOCTYPE HTML>
+<html lang="sr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Пријава</title>
+    <link rel="stylesheet" href="style.css">
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script type="text/javascript" src="script.js"></script>
+    <style type="text/css">
+        .forma-prijave {
+            position: relative;
+            top: 125px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 20px;
+            max-width: 500px;
+            text-align: center;
+            border: 1px solid var(--boja-ivice);
+            border-radius: 20px;
+            background-color: var(--boja-formulara);
+        }
+        
+        .polje-forme {
+            margin-bottom: 20px;
+            width: 100%;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <div class="forma-prijave">
+        <h1 style="padding-bottom: 20px;">Пријава</h1>
+        <form id="formaPrijave">
+            <div class="polje-forme">
+                <label for="email">Имејл</label>
+                <input 
+                    type="email"
+                    class="unos-forme"
+                    id="email" 
+                    name="email" 
+                    placeholder="Овде унети имејл" 
+                >
+                <p id="tekstGreske"></p>
+            </div>
+            <div class="polje-forme">
+                <label for="password">Лозинка</label>
+                <input 
+                    type="password"
+                    class="unos-forme"
+                    id="password" 
+                    name="password" 
+                    placeholder="Овде унети лозинку" 
+                >
+                <p id="tekstGreske"></p>
+            </div>
+            <button 
+                type="submit" 
+                class="dugme-forme" 
+                id="submitBtn"
+            >
+                Пријави се
+            </button>
+            <p id="tekstGreske" style="color: #ff0000;"></p>
+        </form>
+    </div>
+
+    <script type="text/javascript">
+        $(document).ready(function() {
+            ucitajNavbar();
+            $("#email").focus();
+
+            function prikaziGresku(polje, tekst) {
+                polje.addClass("greska");
+                polje.siblings("#tekstGreske").text(tekst);
+            }
+
+            function ukloniGresku(polje) {
+                polje.removeClass("greska");
+                polje.siblings("#tekstGreske").text("");
+            }
+
+            document.getElementById("formaPrijave").addEventListener("submit", function(event){
+                event.preventDefault(); // sprecava slanje forme
+
+                
+                const polja = [
+                    { input: $("#email"), greska: "Нисте унели имејл" },
+                    { input: $("#password"), greska: "Нисте унели лозинку" },
+                ];
+
+                for (const polje of polja) {
+                    ukloniGresku(polje.input); // uklanjanje prethodnih gresaka
+
+                    if (polje.input.val().trim().length === 0) {
+                        prikaziGresku(polje.input, polje.greska);
+                        return; // sprecavanje daljeg izvrsavanja ukoliko je neko polje prazno
+                    }
+                }
+
+                $("#submitBtn").css("background-color", "var(--boja-ivice)").text("Учитавање...");
+
+                // slanje AJAX request-a zajedno sa svim neophodnim podacima za prijavu
+                $.ajax({
+                    type: "POST",
+                    url: "https://vsis.mef.edu.rs/projekat/ulaznice/public_html/api/login",
+                    data: {
+                        email: $("#email").val(),
+                        password: $("#password").val(),
+                        apitoken: $("#apitoken").val(),
+                    },
+                    headers: {
+                        Accept: "application/json"
+                    },
+                    success: function(odgovor) {
+                        if (odgovor.error) {
+                            // prijava neuspesna, greska se prikazuje ispod dugmeta za prijavu
+                            const tekstGreske = $("#formaPrijave p[id='tekstGreske']:last");
+                            tekstGreske.text(odgovor.error);
+
+                            $("#password").val("");
+                            $("#submitBtn").css("background-color", "var(--boja-dobro)").text("Пријави се");
+                        } else {
+                            // prijava uspesna, token i tip korisnika se cuva u localStorage
+                            sacuvajToken(odgovor.token, odgovor.type);
+                            window.location.href = "index.html";
+                        }
+                    },
+                    error: function(xhr, textStatus, error) {
+                        // prikazivanje drugih vrsta gresaka ispod dugmeta za prijavu, ukoliko do njih dodje
+                        const tekstGreske = $("#formaPrijave p[id='tekstGreske']:last");
+                        tekstGreske.text(xhr.odgovorJSON.error);
+                        
+                        $("#submitBtn").css("background-color", "var(--boja-dobro)").text("Пријави се");
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

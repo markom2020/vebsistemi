@@ -1,0 +1,87 @@
+<!DOCTYPE HTML>
+<html lang="sr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Листа корисника према улози</title>
+    <link rel="stylesheet" href="../style.css">
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script type="text/javascript" src="../script.js"></script>
+</head>
+<body>
+    <div style="position: relative;">
+        <h3 id="tekstUcitavanja">Учитавање...</h3>
+        <table id="tabela" style="display: none;">
+            <thead>
+                <tr>
+                    <th colspan="4" id="naslovTabele"></th>
+                </tr>
+                <tr>
+                    <th>ID</th>
+                    <th>Име и презиме</th>
+                    <th>Имејл</th>
+                    <th>Телефон</th>
+                </tr>
+            </thead>
+            <tbody id="teloTabele">
+                <!-- Podaci se dinamicno ubacuju ovde -->
+            </tbody>
+        </table>
+    </div>
+
+    <script type="text/javascript">
+        $(document).ready(function() {
+            const token = ucitajToken();
+            
+            // ukoliko token ne postoji ili ulogovani korisnik nije administrator,
+            // preusmerava se na index.html koji ce dalje preusmeravati u zavisnosti od vrednosti tokena 
+            if (!token || token.type !== uloge[1]) {
+                window.location.href = pocetniURL + "index.html";
+                return;
+            }
+
+            ucitajNavbar();
+
+            function popuniTabelu(korisnici) {
+                const teloTabele = $("#teloTabele");
+                teloTabele.empty();
+
+                korisnici.forEach(korisnik => {
+                    teloTabele.append(`
+                        <tr>
+                            <td>${korisnik.id}</td>
+                            <td>${korisnik.imePrezime}</td>
+                            <td>${korisnik.email}</td>
+                            <td>${korisnik.telefon}</td>
+                        </tr>
+                    `);
+                });
+            }
+                        
+            $.ajax({
+                type: "GET",
+                url: `https://vsis.mef.edu.rs/projekat/ulaznice/public_html/api/korisnik?apitoken=${$("#apitoken").val()}`,
+                headers: {
+                    "Authorization": `Bearer ${token.token}`
+                },
+                success: function(korisnici) {
+                    // zahtev uspesan, poziva se funkcija koja popunjava tabelu sa listom korisnika za datu ulogu
+                    $("#tekstUcitavanja").hide();
+                    $("#tabela").show();
+
+                    const url = new URL(window.location.href);
+                    const id_uloge = parseInt(url.searchParams.get("id"));
+                    const korisnici_uloge = korisnici.filter(korisnik => korisnik.uloga.id === id_uloge);
+
+                    popuniTabelu(korisnici_uloge);
+                    $("#naslovTabele").text(`Листа корисника за улогу: ${uloge[id_uloge]}`);
+                },
+                error: function(xhr, textStatus, error) {
+                    // zahtev neuspesan
+                    console.error(xhr);
+                }
+            });
+        });
+    </script>
+</body>
+</html>

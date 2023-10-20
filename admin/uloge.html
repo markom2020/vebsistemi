@@ -1,0 +1,104 @@
+<!DOCTYPE HTML>
+<html lang="sr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Улоге</title>
+    <link rel="stylesheet" href="../style.css">
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script type="text/javascript" src="../script.js"></script>
+</head>
+<body>
+    <div style="position: relative;">
+        <h3 id="tekstUcitavanja">Учитавање...</h3>
+        <table id="tabela" style="display: none;">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Назив</th>
+                    <th>Опис</th>
+                    <th>Број корисника</th>
+                </tr>
+            </thead>
+            <tbody id="teloTabele">
+                <!-- Podaci se dinamicno ubacuju ovde -->
+            </tbody>
+        </table>
+    </div>
+
+    <script type="text/javascript">
+        $(document).ready(function() {
+            const token = ucitajToken();
+            
+            // ukoliko token ne postoji ili ulogovani korisnik nije administrator,
+            // preusmerava se na index.html koji ce dalje preusmeravati u zavisnosti od vrednosti tokena 
+            if (!token || token.type !== uloge[1]) {
+                window.location.href = pocetniURL + "index.html";
+                return;
+            }
+
+            ucitajNavbar();
+
+            function popuniTabelu(uloge) {
+                const teloTabele = $("#teloTabele");
+                teloTabele.empty();
+
+                uloge.forEach(uloga => {
+                    teloTabele.append(`
+                        <tr>
+                            <td>${uloga.id}</td>
+                            <td>${uloga.naziv}</td>
+                            <td>${uloga.opis}</td>
+                            <td><a id="uloga_${uloga.id}" href="uloga_korisnici.html?id=${uloga.id}">0</a></td>
+                        </tr>
+                    `);
+                });
+            }
+
+            const apitoken = $("#apitoken").val();
+
+            $.ajax({
+                type: "GET",
+                url: `https://vsis.mef.edu.rs/projekat/ulaznice/public_html/api/uloga?apitoken=${apitoken}`,
+                headers: {
+                    "Authorization": `Bearer ${token.token}`
+                },
+                success: function(uloge) {
+                    // Zahtev uspesan, poziva se funkcija koja popunjava tabelu sa ulogama
+                    $("#tekstUcitavanja").hide();
+                    $("#tabela").show();
+                    popuniTabelu(uloge);
+
+                    $.ajax({
+                        type: "GET",
+                        url: `https://vsis.mef.edu.rs/projekat/ulaznice/public_html/api/korisnik?apitoken=${$("#apitoken").val()}`,
+                        headers: {
+                            "Authorization": `Bearer ${token.token}`
+                        },
+                        success: function(korisnici) {
+                            for (let i in korisnici) {
+                                const kolona = $(`#uloga_${korisnici[i].uloga.id}`);
+                                const kolona_id = kolona.attr("id").split("_")[1];
+
+                                if (korisnici[i].uloga.id === parseInt(kolona_id)) {
+                                    const brojKorisnika = parseInt(kolona.text());
+                                   
+                                    kolona.text(brojKorisnika + 1);
+                                }
+                            }
+                        },
+                        error: function(xhr, textStatus, error) {
+                            // zahtev neuspesan
+                            console.error(xhr);
+                        }
+                    });
+                },
+                error: function(xhr, textStatus, error) {
+                    // Zahtev neuspesan
+                    console.error(xhr);
+                }
+            });
+        });
+    </script>
+</body>
+</html>

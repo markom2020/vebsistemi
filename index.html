@@ -1,0 +1,40 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="style.css">
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script type="text/javascript" src="script.js"></script>
+</head>
+<body>
+    <script type="text/javascript">
+        const token = ucitajToken();
+
+        if (!token) {
+            window.location.href = "prijava.html";
+        }
+
+        // administrator
+        else if (token.type === uloge[1]) {
+            window.location.href = "admin/korisnici.html";
+        }
+
+        else if (token.type === uloge[2] || token.type === uloge[3]) {
+            window.location.href = "dogadjaji.html"
+        }
+        // blokirani korisnik
+        else if (token.type === uloge[4]) {
+            ucitajNavbar();
+
+            const tekst = document.createElement("h3");
+
+            tekst.id = "tekstUcitavanja";
+            tekst.innerText = "Ваш налог је блокиран и није могуће приступити апликацији."
+
+            document.body.appendChild(tekst);
+        }
+    </script>
+</body>
+</html>

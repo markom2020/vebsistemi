@@ -1,0 +1,240 @@
+:root {
+    /* dimenzije */
+
+    /* boje */
+    --boja-stranice: #fafafa;
+    --boja-formulara: #eee;
+    --boja-ivice: #aaa;
+
+    --boja-teksta1: #222;
+    --boja-teksta2: #444;
+    --boja-teksta3: #666;
+
+    --boja-dobro: #4caf50;
+    --boja-onako: #007BFF;
+    --boja-lose: #ffa500;
+    --boja-opasno: #ff0000;
+}
+
+body {
+    background-color: var(--boja-stranice);
+}
+
+/* "Default" margine i stil pisma */
+* {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+}
+
+/* "Default" boje za linkove i dugmad */
+a, button {
+    color: var(--boja-onako);
+    text-decoration: none;
+}
+
+/* "Default" boje za sve naslove (primarni tekstovi) */
+h1, 
+h2, 
+h3, 
+h4, 
+h5, 
+h6 { 
+    color: var(--boja-teksta1);
+}
+
+/* "Default" boje za sekundarne tekstove */
+p,
+li,
+label {
+    color: var(--boja-teksta2);
+}
+
+/******************** FORME ********************/
+
+.polje-forme .vreme {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    column-gap: 10px;
+}
+
+.polje-forme .vreme input {
+    text-align: center;
+}
+
+.polje-forme .vreme input:disabled {
+    background-color: var(--boja-ivice);
+}
+
+.unos-forme {
+    margin-top: 5px;
+    padding: 8px;
+    padding-right: 0;
+    width: calc(100% - 10px);
+    outline: none;
+    border: 1px solid var(--boja-ivice);
+    border-radius: 5px;
+    color: var(--boja-teksta1);
+    background-color: var(--boja-stranice);
+}
+
+.dugme-forme {
+    cursor: pointer;
+    padding: 10px;
+    width: 100%;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    outline: none;
+    border: none;
+    border-radius: 5px;
+    color: #fff;
+    background-color: var(--boja-dobro);
+    transition: all 300ms ease;
+}
+
+.dugme-forme:hover {
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+input.greska {
+    border: 1px solid var(--boja-lose);
+}
+
+#tekstGreske {
+    font-size: 15px;
+    color: var(--boja-lose);
+}
+
+/******************** NAVBAR ********************/
+
+nav {
+    overflow: hidden;
+    display: flex;
+    justify-content: space-around;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    border-bottom: 1px solid var(--boja-ivice);
+    background-color: var(--boja-formulara);
+}
+
+nav a {
+    float: left;
+    display: block;
+    color: var(--boja-teksta3);
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+}
+
+nav a:hover,
+nav a.active {
+    color: var(--boja-teksta1);
+    background-color: #ddd;
+    transition: all 300ms ease;
+}
+
+ul {
+    margin: 0;
+    padding: 0;
+    list-style-type: none;
+}
+
+li {
+    display: inline;
+}
+
+#tekstUcitavanja {
+    position: absolute;
+    top: 175px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+/******************** TABELA ********************/
+
+table:not(.polje-forme table) {
+    border-collapse: collapse;
+    margin: 175px auto;
+    width: 90%;
+}
+
+table a:hover {
+    text-decoration: underline;
+}
+
+th, td {
+    padding: 10px;
+    text-align: center !important;
+    border: 1px solid var(--boja-ivice);
+}
+
+th {
+    text-align: left;
+    color: var(--boja-teksta1);
+    background-color: var(--boja-formulara);
+}
+
+td {
+    color: var(--boja-teksta2);
+}
+
+/******************** MODAL ********************/
+
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+}
+
+.sadrzaj-modala {
+    position: absolute;
+    top: 25%;
+    left: 50%;
+    transform: translate(-50%, -25%);
+    padding: 20px;
+    width: 500px;
+    text-align: center;
+    border-radius: 5px;
+    background-color: var(--boja-stranice);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* tekst modala */
+.sadrzaj-modala p {
+    margin-top: 40px;
+    line-height: 20px;
+}
+
+/* dugme koje u gornjem desnom uglu */
+#zatvaracModala {
+    cursor: pointer;
+    position: absolute;
+    top: 5px;
+    right: 10px;
+    font-size: 35px;
+    color: var(--boja-ivice);
+    transition: color 250ms ease;
+}
+
+#zatvaracModala:hover {
+    color: var(--boja-teksta3);
+}
+
+#otvaracModala {
+    cursor: pointer;
+    transition: color background-color 250ms ease;
+}
+
+#otvaracModala:hover {
+    color: var(--boja-teksta1);
+    background-color: rgba(0, 0, 0, 0.1)
+}
+

@@ -1,0 +1,293 @@
+<!DOCTYPE HTML>
+<html lang="sr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Креирање корисника</title>
+    <link rel="stylesheet" href="../style.css">
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script type="text/javascript" src="../script.js"></script>
+    <style type="text/css">
+        .forma-registracije {
+            position: relative;
+            top: 125px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 20px;
+            max-width: 500px;
+            text-align: center;
+            border: 1px solid var(--boja-ivice);
+            border-radius: 20px;
+            background-color: var(--boja-formulara);
+        }
+        
+        .polje-forme {
+            margin-bottom: 20px;
+            width: 100%;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <div class="forma-registracije">
+        <h1 style="padding-bottom: 20px;">Креирање корисника</h1>
+        <form id="formaRegistracije">
+            <div class="polje-forme">
+                <label for="name">Име и презиме</label>
+                <input 
+                    type="text"
+                    class="unos-forme"
+                    id="name" 
+                    name="name" 
+                    placeholder="Овде унети име и презиме" 
+                >
+                <p id="tekstGreske"></p>
+            </div>
+            <div class="polje-forme">
+                <label for="email">Имејл</label>
+                <input 
+                    type="email"
+                    class="unos-forme"
+                    id="email" 
+                    name="email" 
+                    placeholder="Овде унети имејл" 
+                >
+                <p id="tekstGreske"></p>
+            </div>
+            <div class="polje-forme">
+                <label for="password">Лозинка</label>
+                <input 
+                    type="password"
+                    class="unos-forme"
+                    id="password" 
+                    name="password" 
+                    placeholder="Овде унети лозинку" 
+                >
+                <p id="tekstGreske"></p>
+            </div>
+            <div class="polje-forme">
+                <label for="password2">Поновљена лозинка</label>
+                <input 
+                    type="password"
+                    class="unos-forme"
+                    id="password2" 
+                    name="password2" 
+                    placeholder="Овде унети поновљену лозинку" 
+                >
+                <p id="tekstGreske"></p>
+            </div>
+            <div class="polje-forme">
+                <label for="phone">Телефон</label>
+                <input 
+                    type="tel"
+                    class="unos-forme"
+                    id="phone" 
+                    name="phone" 
+                    placeholder="Овде унети телефон" 
+                >
+                <p id="tekstGreske"></p>
+            </div>
+            <div class="polje-forme">
+                <label for="uloge">Улога</label>
+                <select 
+                    class="unos-forme" 
+                    id="uloge" 
+                    name="uloge"
+                    required
+                >
+                    <option value="1">Администратор</option>
+                    <option value="2">Благајник</option>
+                    <option value="3">Регистровани корисник</option>
+                </select>
+            </div>
+            <div class="polje-forme" style="display: none;">
+                <label for="lokacije">Локација</label>
+                <select 
+                    class="unos-forme" 
+                    id="lokacije" 
+                    name="lokacije"
+                >
+                </select>
+            </div>
+            <button 
+                type="submit" 
+                class="dugme-forme" 
+                id="submitBtn"
+                style="margin-bottom: 10px;"
+            >
+                Сними
+            </button>
+            <button 
+                type="submit" 
+                class="dugme-forme" 
+                style="background-color: var(--boja-teksta3);"
+                onclick="window.location.href = 'korisnici.html'"
+            >
+                Назад
+            </button>
+        </form>
+    </div>
+
+    <script type="text/javascript">
+        $(document).ready(function() {
+            const token = ucitajToken();
+            
+            // ukoliko token ne postoji ili ulogovani korisnik nije administrator,
+            // preusmerava se na index.html koji ce dalje preusmeravati u zavisnosti od vrednosti tokena 
+            if (!token || token.type !== uloge[1]) {
+                window.location.href = pocetniURL + "index.html";
+                return;
+            }
+
+            ucitajNavbar();
+
+            // slanje AJAX request-a za preuzimanje lokacija i popunjavanje select elementa
+            $.ajax({
+                type: "GET",
+                url: `https://vsis.mef.edu.rs/projekat/ulaznice/public_html/api/lokacija?apitoken=${$("#apitoken").val()}`,
+                headers: {
+                    "Authorization": `Bearer ${token.token}`
+                },
+                success: function(lokacije) {
+                    // zahtev uspesan, lokacije se prikazuju u select elementu
+                    for (let i in lokacije) {
+                        const option = `<option value="${lokacije[i].id}">${lokacije[i].naziv}</option>`
+                        $("#lokacije").append(option);
+                    }
+                },
+                error: function(xhr, textStatus, error) {
+                    // zahtev neuspesan
+                    console.error(xhr);
+                }
+            });
+
+            $("#uloge").change(function() {
+                if ($(this).val() === "2") {
+                    $(".polje-forme").has("#lokacije").show();
+                } else {
+                    $(".polje-forme").has("#lokacije").hide();
+                }
+            });
+
+            $("#name").focus();
+
+            function prikaziGresku(polje, tekst) {
+                polje.addClass("greska");
+                polje.siblings("#tekstGreske").text(tekst);
+            }
+
+            function ukloniGresku(polje) {
+                polje.removeClass("greska");
+                polje.siblings("#tekstGreske").text("");
+            }
+
+            // funkcija koja proverava vrednosti polja za unos i potom prikazuje/uklanja greske
+            function proveriPolje(polje, regex, tekst) {
+                const vrednost = polje.val().trim();
+
+                // polje za phone nije obavezno pa se zato greska uklanja ukoliko je polje prazno
+                if (polje.attr("id") === "phone" && vrednost.length === 0) {
+                    ukloniGresku(polje);
+                    return; // sprecava dalje izvrsavanje funkcije
+                }
+
+                if (!vrednost.match(regex)) { // prikazi gresku ukoliko vrednost polja ne odgovara poslatom regularnom izrazu
+                    prikaziGresku(polje, tekst);
+                } else { // u suprotnom ukloni gresku
+                    ukloniGresku(polje);
+                }
+            }
+
+            // provera vrednosti polja za unos imena i prezimena prilikom svakog njegovog napustanja
+            $("#name").blur(function() {
+                proveriPolje($(this), /^[A-ZА-ЯЁa-zа-яё]+\s[A-ZА-ЯЁa-zа-яё]+$/, "Име и презиме није правилно написано");
+            });
+
+            // provera ispunjenosti polja za unos imejla prilikom svakog njegovog napustanja
+            $("#email").blur(function() {
+                if ($("#email").val().trim().length > 0) {
+                    ukloniGresku($("#email"));
+                }
+            });
+
+            // provera vrednosti polja za unos telefona prilikom svakog njegovog napustanja
+            $("#phone").blur(function() {
+                proveriPolje($(this), /^\+[1-9]\d{1,14}$/, "Телефон није исправан");
+            });
+
+            // provera vrednosti polja za unos lozinke prilikom svakog njegovog napustanja
+            $("#password").blur(function() {
+                proveriPolje($(this), /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z\d]).{6,}$/, "Лозинка није довољно јака");
+            });
+
+            // provera vrednosti polja za unos ponovljene lozinke prilikom svakog njegovog napustanja
+            $("#password2").blur(function() {
+                proveriPolje($(this), new RegExp(`^${$("#password").val()}$`, "i"), "Лозинке се не поклапају");
+            });
+
+            document.getElementById("formaRegistracije").addEventListener("submit", function(event){
+                event.preventDefault(); // sprecava slanje forme
+
+                
+                const polja = [
+                    { input: $("#name"), greska: "Нисте унели име и презиме" },
+                    { input: $("#email"), greska: "Нисте унели имејл" },
+                    { input: $("#password"), greska: "Нисте унели лозинку" },
+                    { input: $("#password2"), greska: "Нисте унели поновљену лозинку" },
+                ];
+
+                for (const polje of polja) {
+                    ukloniGresku(polje.input); // uklanjanje prethodnih gresaka
+
+                    if (polje.input.val().trim().length === 0) {
+                        prikaziGresku(polje.input, polje.greska);
+                        return; // sprecavanje daljeg izvrsavanja ukoliko je neko polje prazno
+                    }
+                }
+
+                $("#submitBtn").css("background-color", "var(--boja-ivice)").text("Учитавање...");
+
+                // slanje AJAX request-a za kreiranje korisnika zajedno sa svim neophodnim podacima
+                $.ajax({
+                    type: "POST",
+                    url: "https://vsis.mef.edu.rs/projekat/ulaznice/public_html/api/korisnik",
+                    data: {
+                        name: $("#name").val(),
+                        email: $("#email").val(),
+                        phone: $("#phone").val(),
+                        password: $("#password").val(),
+                        userRoleId: parseInt($("#uloge").val()),
+                        locationId: parseInt($("#lokacije").val()) || 0,
+                        apitoken: $("#apitoken").val(),
+                    },
+                    headers: {
+                        Authorization: `Bearer ${token.token}`,
+                        Accept: "application/json",
+                    },
+                    success: function(odgovor) {
+                        if (odgovor.error) {
+                            // kreiranje korisnika neuspesno, greska se prikazuje ispod dugmeta za snimanje
+                            $("#formaRegistracije p[id='tekstGreske']:last").text(odgovor.error).show();
+                            $("#submitBtn").css("background-color", "var(--boja-dobro)").text("Сними");
+
+                            if (odgovor.error.includes("мејл")) {
+                                $("#email").val("");
+                            } else if (odgovor.error.includes("телефон")) {
+                                $("#phone").val("");
+                            }
+                        } else {
+                            // kreiranje korisinka uspesno, korisnik se preusmerava na stranicu sa listom korisnika
+                            window.location.href = "korisnici.html";
+                        }
+                    },
+                    error: function(xhr, textStatus, error) {
+                        // prikazivanje drugih vrsta gresaka ispod dugmeta za snimanje, ukoliko do njih dodje
+                        $("#formaRegistracije p[id='tekstGreske']:last").text(xhr.odgovorJSON.error).show();
+                        $("#submitBtn").css("background-color", "var(--boja-dobro)").text("Сними");
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,173 @@
+<!DOCTYPE HTML>
+<html lang="sr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Локације</title>
+    <link rel="stylesheet" href="../style.css">
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script type="text/javascript" src="../script.js"></script>
+    <style type="text/css">
+        .dugme-forme.dodaj {
+            position: absolute;
+            top: -50px;
+            right: 5%;
+            width: auto;
+            font-size: 12px;
+        }
+        
+        .dugme-forme.izmeni,
+        .dugme-forme.obrisi {
+            margin: 5px 0;
+            padding: 10px 0;
+            font-size: 10px;
+        }
+
+        .dugme-forme.izmeni {
+            background-color: var(--boja-onako);
+        }
+        .dugme-forme.obrisi {
+            background-color: var(--boja-opasno);
+        }
+    </style>
+</head>
+<body>
+    <div style="position: relative;">
+        <button 
+            class="dugme-forme dodaj" 
+            style="display: none;"
+            onclick="window.location.href = 'kreiranje_lokacije.html'"
+        >
+            Креирај локацију &#43;
+    </button>
+        <h3 id="tekstUcitavanja">Учитавање...</h3>
+        <table id="tabela" style="display: none;">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Назив локације</th>
+                    <th>Град</th>
+                    <th>Адреса</th>
+                    <th>Опис</th>
+                    <th>Радно време</th>
+                    <th>Укупно благајника</th>
+                    <th>Укупан број догађаја</th>
+                    <th>Укупан број активних догађаја</th>
+                    <th>Акција</th>
+                </tr>
+            </thead>
+            <tbody id="teloTabele">
+                <!-- Podaci se dinamicno ubacuju ovde -->
+            </tbody>
+        </table>
+    </div>
+    
+    <script type="text/javascript">
+        function izbrisiLokaciju(id, naziv, token, indeks_reda) {
+            $.ajax({
+                url: `https://vsis.mef.edu.rs/projekat/ulaznice/public_html/api/lokacija/${id}?apitoken=${$("#apitoken").val()}`,
+                method: "DELETE",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    Accept: "application/json",
+                },
+                success: function(odgovor) {
+                    ucitajModal("Брисање локације успешно", `Успешно сте обрисали локацију <strong>${naziv}<strong/>.`);
+                    $("#teloTabele tr").eq(indeks_reda).hide();
+                },
+                error: function(xhr, textStatus, error) {
+                    ucitajModal("Брисање локације неуспешно", `Брисање локације <strong>${naziv}<strong/> није успело.`);
+                },
+            });
+        }
+        
+        $(document).ready(function() {
+            const token = ucitajToken();
+            
+            // ukoliko token ne postoji ili ulogovani korisnik nije administrator,
+            // preusmerava se na index.html koji ce dalje preusmeravati u zavisnosti od vrednosti tokena 
+            if (!token || token.type !== uloge[1]) {
+                window.location.href = pocetniURL + "index.html";
+                return;
+            }
+
+            ucitajNavbar();
+
+            function popuniTabelu(lokacije) {
+                const teloTabele = $("#teloTabele");
+                teloTabele.empty();
+
+                lokacije.forEach((lokacija, indeks) => {
+                    teloTabele.append(`
+                        <tr>
+                            <td>${lokacija.id}</td>
+                            <td>${lokacija.naziv}</td>
+                            <td>${lokacija.grad}</td>
+                            <td>${lokacija.adresa}</td>
+                            <td>${lokacija.opis ? lokacija.opis : "/"}</td>
+                            <td>${formatRadnoVreme(lokacija.radnoVreme)}</td>
+                            <td>${lokacija.blagajnici.length}</td>
+                            <td>${lokacija.dogadjaji.length}</td>
+                            <td>0</td>
+                            <td>
+                                <button class="dugme-forme izmeni" onclick="window.location.href = 'izmena_lokacije.html?id=${lokacija.id}'">Измени</button>
+                                <button class="dugme-forme obrisi" onclick="izbrisiLokaciju('${lokacija.id}', '${lokacija.naziv}', '${token.token}', '${indeks}')">Обриши</button>
+                            </td>
+                        </tr>
+                    `);
+                });
+            }
+
+            function formatRadnoVreme(radnoVreme) {
+                const daniNedelje = ["Недеља", "Понедељак", "Уторак", "Среда", "Четвртак", "Петак", "Субота"];
+                
+                // inicijalizacija niza koji ce sadrzati formatirane podatke za svaki dan u nedelji
+                const daniFormat = [];
+
+                // formatiranje svakog podatka kroz petlju
+                radnoVreme.forEach((item) => {
+                    const brojDana = parseInt(item.dan);
+                    const minutiPocetak = item.od;
+                    const minutiKraj = item.do;
+
+                    const danNedelje = daniNedelje[brojDana];
+                    const vremeFormat = formatVreme(minutiPocetak) + "-" + formatVreme(minutiKraj);
+
+                    const danFormat = `<strong>${danNedelje}</strong>${vremeFormat}`;
+                    daniFormat.push(danFormat);
+                });
+
+                // na kraju se dani odvajaju novom linijom
+                return daniFormat.join("<br>");
+            }
+
+            function formatVreme(minuti) {
+                // formatiranje minuta kao HH:mm
+                const sat = Math.floor(minuti / 60);
+                const min = minuti % 60;
+                return `${sat.toString().padStart(2, '0')}:${min.toString().padStart(2, '0')}`;
+            }
+                        
+            $.ajax({
+                type: "GET",
+                url: `https://vsis.mef.edu.rs/projekat/ulaznice/public_html/api/lokacija?apitoken=${$("#apitoken").val()}`,
+                headers: {
+                    "Authorization": `Bearer ${token.token}`
+                },
+                success: function(lokacije) {
+                    // zahtev uspesan, poziva se funkcija koja popunjava tabelu sa lokacijama
+                    $("#tekstUcitavanja").hide();
+                    $("#tabela").show();
+                    $(".dugme-forme.dodaj").show();
+
+                    popuniTabelu(lokacije);
+                },
+                error: function(xhr, textStatus, error) {
+                    // zahtev neuspesan
+                    console.error(xhr);
+                }
+            });
+        });
+    </script>
+</body>
+</html>

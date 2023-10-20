@@ -1,0 +1,145 @@
+<!DOCTYPE HTML>
+<html lang="sr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Догађаји</title>
+    <link rel="stylesheet" href="style.css">
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script type="text/javascript" src="script.js"></script>
+    <style type="text/css">
+        #kartice {
+            margin: 0 auto;
+            margin-top: 100px;
+            width: 90%;
+        }
+
+        .dogadjaj-kartica {
+            cursor: pointer;
+            display: inline-block;
+            vertical-align: top;
+            margin: 10px;
+            padding: 10px;
+            width: 300px;
+            border: 1px solid var(--boja-ivice);
+            border-radius: 5px;
+            transition: background-color 250ms ease;
+        }
+
+        .dogadjaj-kartica:hover {
+            background-color: rgba(0, 0, 0, 0.1)
+        }
+
+        .dogadjaj-kartica h2 {
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+
+        .dogadjaj-kartica p {
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+
+        .dogadjaj-kartica-akcije {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+        }
+        
+        .dugme-forme.izmeni,
+        .dugme-forme.obrisi {
+            margin-top: 5px;
+            margin-right: 10px;
+        }
+
+        .dugme-forme.izmeni {
+            background-color: var(--boja-onako);
+        }
+        .dugme-forme.obrisi {
+            background-color: var(--boja-opasno);
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <button 
+            class="dugme-forme dodaj" 
+            style="display: none;"
+            onclick="window.location.href = 'kreiranje_dogadjaja.html'"
+        >
+            Креирај догађај &#43;
+        </button>
+        <h3 id="tekstUcitavanja">Учитавање...</h3>
+        <div id="kartice">
+            <!-- Dogadjaji se dinamicki prikazuju ovde -->
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        $(document).ready(function() {
+            const token = ucitajToken();
+            
+
+            // ukoliko token ne postoji korisnik preusmerava se na index.html koji ce dalje preusmeravati u zavisnosti od vrednosti tokena 
+            if (!token) {
+                window.location.href = pocetniURL + "index.html";
+                return;
+            }
+
+            ucitajNavbar();
+
+            function prikaziDogadjaje(dogadjaji) {
+                const kartice = $("#kartice");
+                kartice.empty();
+
+                dogadjaji.forEach(dogadjaj => {
+                    const vremeKreiranja = new Date(dogadjaj.vremeKreiranja).toLocaleString();
+                    const trajanje = `${dogadjaj.trajanje} мин`;
+
+                    const card = `
+                        <div class="dogadjaj-kartica">
+                            <h2>${dogadjaj.naslov}</h2>
+                            <p>${dogadjaj.kratakOpis}</p>
+                            <p><strong>Локација:</strong> ${dogadjaj.lokacija.naziv}</p>
+                            <p><strong>Време креирања:</strong> ${vremeKreiranja}</p>
+                            <p><strong>Трајање:</strong> ${trajanje}</p>
+                            ${token.type === uloge[1] || token.type === uloge[2] ? (`
+                                <div class="dogadjaj-kartica-akcije">
+                                    <button class="dugme-forme izmeni">Измени</button>
+                                    <button class="dugme-forme obrisi">Обриши</button>
+                                </div>
+                            `) : ""}
+                        </div>
+                    `;
+
+                    kartice.append(card);
+                });
+            }
+
+            // slanje AJAX request-a za preuzimanje podataka o lokacijama
+            $.ajax({
+                type: "GET",
+                url: `https://vsis.mef.edu.rs/projekat/ulaznice/public_html/api/lokacija?apitoken=${$("#apitoken").val()}`,
+                headers: {
+                    "Authorization": `Bearer ${token.token}`
+                },
+                success: function(dogadjaji) {
+                    // zahtev uspesan
+                    $("#tekstUcitavanja").hide();
+                    $(".dugme-forme.dodaj").show();
+
+                    const allEvents = dogadjaji.reduce((accumulator, location) => {
+                        return accumulator.concat(location.dogadjaji);
+                    }, []);
+
+                    prikaziDogadjaje(allEvents);
+                },
+                error: function(xhr, textStatus, error) {
+                    // zahtev neuspesan
+                    console.error(xhr);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
